@@ -21,23 +21,31 @@ We use the sample function to set up our experiment, and replicate function to r
 ## Die Rolls
 Setup the experiment where we roll two fair six sided die independently, and calculate the sum of the numbers that appear for each of them. 
 ```{r}
-
+sample(c(1,2,3,4,5,6), 1) + sample(c(1,2,3,4,5,6), 1)
 ```
 
 
 Use the replicate function to repeat this experiment 10000 times, store the output of the experiment in a variable "sum_die". 
 ```{r}
-
+sum_die <- replicate(1000, sample(c(1,2,3,4,5,6), 1) + sample(c(1,2,3,4,5,6), 1))
 ```
 Use "sum_die" to calculate the empirical probability of getting the sums 2, 3, 4, ..., 12. Compare your answers with the theoretical values (you calculated these in HW2).
 
 ```{r}
+exp = seq(from = 2, to = 12, by = 2)
+counter = 0
+  for ( sum_val in sum_die ) {
+    if (sum_val %in% exp) {
+     counter = counter + 1}
+  }
 
+print (paste("Emperical Probability = ",counter/10000))
 ```
 
 Plot the following: relative frequency of getting sum equal to 4 as a function of number of trials, for this experiment.
 ```{r}
-
+table(sum_die)
+#print(sum_die)
 ```
 
 
@@ -52,7 +60,11 @@ Hint: the "unique" function applied to a vector gives the unique entries in a ve
 #define the function 'exactly_one_cell'sds
 #takes input number of cells,
 #output: true if exactly one cell is empty, else false.
-
+exactly_one <- function(n) {
+  assign <- sample(1:n,n,replace=TRUE)
+  unique <- length(unique(assign))
+  return(unique == n - 1)
+}
 
 ```
 

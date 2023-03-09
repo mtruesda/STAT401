@@ -55,6 +55,8 @@ If $n$ indistinguishable balls are placed randomly into $n$ cells, the probabili
 Write a function "exactly_one_cell'' takes input $n$, and performs one run of this experiment. 
 Hint: the "unique" function applied to a vector gives the unique entries in a vector. You can sample a set of size $n$ (with replacement) from ${1, 2, 3, 4, 5, ...., n}$, and check if the number of unique entries in this set is $(n-1)$. 
 ```{r}
+#define the function 'exactly_one_cell'sds
+#takes input number of cells,
 exactly_one_cell <- function(n) {
   num_filled_cells = length(unique(sample.int(n, n, replace = TRUE)))
   if (num_filled_cells == n-1){
@@ -63,6 +65,8 @@ exactly_one_cell <- function(n) {
   return(FALSE)
 }
 ```
+
+The part below was already here ? ***
 
 ```{r}
 n <- 3
@@ -74,6 +78,18 @@ theoretical_value
 
 
 Now use the replicate function to calculate the empirical probabilities when for each of the following values of $n: 3, 6, 9, 15$ (note any problems that you might run into). Verify that your empirical probabilities indeed line up with what we expect from our theoretical calculations. 
+
+Wrote the below to use in showing the above
+```{r}
+exp_run_times = 1000
+for(n in c(3, 6, 9, 15)) {
+  successes = sum(replicate(exp_run_times, exactly_one_cell(n)))/exp_run_times
+  theoretical_value <- choose(n, 2)*factorial(n)/(n^n)
+  print(abs(successes - theoretical_value))
+}
+# Upon repeated runs of this code, the difference in theoretical value
+# and the experimental value are close. The most it tends to differ by is 0.01
+```
 
 # Central Limit Theorem
 ## Exponential Distribution

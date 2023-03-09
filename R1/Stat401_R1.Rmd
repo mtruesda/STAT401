@@ -109,7 +109,9 @@ Be sure to have appropriate titles for your histograms.
     })
     hist(replicates, breaks = 100,
          main = paste("Samp Dist for Exp, samp size =", size ))
-}
+  }
+  # As the sample size increases, the sampling distribution of the sample mean
+  # becomes more normal.
 ```
 
 What do you notice?
@@ -121,13 +123,26 @@ Suppose we are working with the discrete uniform random variable taking values $
 Define a function "disc_samp" that takes input "n" and returns a random sample of size "n" from this distribution.
 
 ```{r}
-
+disc_samp = function(n){
+  return( sample.int(6, n, replace = TRUE) )
+}
 ```
 
 Use the "disc_samp" function and the replicate function to to get the histograms for the sampling distribution of the sample mean when working with sample sizes $n = 1, 2, 3, 4, 15, 500$.
 Be sure to have appropriate titles for your histograms. 
 ```{r}
+samp_sizes  <- c(1, 2, 3, 4, 15, 500, 1000)
 
+par(mfrow=c(2,4))
+for(size in samp_sizes){
+  replicates <- replicate(10000, {
+    mean(disc_samp(size))
+  })
+  hist(replicates, breaks = 100,
+       main = paste("Samp Dist for Exp, n =", size ))
+}
+# As the sample size increases, the sampling distribution of the sample mean
+# becomes more normal.
 ```
 
 What do you notice?
@@ -139,13 +154,26 @@ Suppose we are working with the Continuous uniform random variable taking values
 Define a function "cont_uni_samp" that takes input "n" and returns a random sample of size "n" from this distribution.
 
 ```{r}
-
+cont_uni_samp = function(n){
+  return( runif(n, 0, 1))
+}
 ```
 
 Use the "cont_uni_samp" function and the replicate function to to get the histograms for the sampling distribution of the sample mean when working with sample sizes $n = 1, 2, 3, 4, 15, 500$.
 Be sure to have appropriate titles for your histograms. 
 ```{r}
+samp_sizes  <- c(1, 2, 3, 4, 15, 500, 1000)
 
+par(mfrow=c(2,4))
+for(size in samp_sizes){
+  replicates <- replicate(10000, {
+    mean(cont_uni_samp(size))
+  })
+  hist(replicates, breaks = 100,
+       main = paste("Samp Dist for Exp, n a=", size ))
+}
+# As the sample size increases, the sampling distribution of the sample mean
+# becomes more normal.
 ```
 
 What do you notice?
@@ -157,19 +185,34 @@ $$ \text{Bias}(\hat{\theta}) = \frac{\sigma^2}{n}.$$
 
 Write function that takes input a random sample and outputs the square of the sample mean (this is the estimator $\hat{\theta}$. 
 ```{r}
-
+samp_mean_square = function(x){
+  return( mean(x) ^ 2   )
+}
 ```
 
 Use the replicate function to calculate the empirical variance and bias of the estimator $\hat{\theta}$ when sampling a sample of size 15 from $N(\mu = 5, \sigma = 1.5)$.
 Store these numbers in variables "var_emp" and "bias_emp".
 ```{r}
-
+n = 15
+mu = 5
+sd = 1.5
+repls = 10000
+true_mean_squared  = 5 ^ 2
+values = replicate(repls, samp_mean_square(rnorm(n, mean=mu, sd=sd)))
+var_emp = var(values)
+bias_emp = mean(values) - true_mean_squared
+print("Check this")
+print(paste("Var_emp: ", var_emp))
+print(paste("Bias_emp: ", bias_emp))
 ```
 
 Use the replicate function to calculate the Mean Squared Error for $\hat{\theta}$ when sampling a sample of size 15 from  $N(\mu = 5, \sigma = 1.5)$. Store this number in "MSE_emp".
 
 ```{r}
-
+print(var_emp + (bias_emp ^ 2) )
+MSE_emp = sum( (values - true_mean_squared) ^ 2 )  / repls
+print("Check this")
+print(MSE_emp)
 ```
 
 
@@ -177,7 +220,7 @@ If there is justice in this world, you must get $$\rm{mse}_{emp}\approx\rm{var}_
 
 Check if this is true for the estimator $\hat{\theta}$. 
 
-
+Check this? ^^
 
 # Estimator for $\mu$ from two samples
 Recall from lecture that we constructed an unbiased estimator for $\mu$ as a weighted average of sample means coming from two independent random samples of sizes $m$ and $n$ coming from populations with mean $\mu$ and variances $\sigma^2$ and $k*\sigma^2$ for some choice of $k$. 
@@ -189,7 +232,7 @@ In the following code, we define a function that takes input $\delta$, and run a
 ```{r}
 mean_estimate_two_samps <- function(delta){
   samp1 <- rnorm(10, mean = 2, sd = 3)
-samp2 <- rnorm(20, mean = 2, sd = 6)
+  samp2 <- rnorm(20, mean = 2, sd = 6)
   return(delta*mean(samp1) + (1-delta)*mean(samp2))
 }
 ```
@@ -218,7 +261,14 @@ var
 Run the same experiment as above with the value of $\delta$ that minimizes the variance of $\hat{\mu}$. 
 
 ```{r}
-
+n <- 100000
+opt_delta = (36 / 20) / ( (9/10) + (36 / 20) )
+print(opt_delta)
+means <- replicate(n,mean_estimate_two_samps(opt_delta))
+var(means)
+var <- opt_delta^2*(3^2)/10 + (1-opt_delta)^2*(6^2)/20
+print("Check this")
+var
 ```
 
 
@@ -230,21 +280,58 @@ Construct plot of the pdf of the standard normal distribution, and the plot of t
 
 
 ```{r}
-
+n = 10000
+dev.off(dev.list()["RStudioGD"]) 
+x_axis = seq(-5, 5, length = 1000)
+plot( x_axis, dnorm(x_axis), 
+      type = "l", col = "red",
+      xlab = "Values", ylab = "Frequency")
+abline(v=qnorm(0.025), col="red")
+abline(v=qnorm(1 - 0.025), col="red")
 ```
 
 For the plot above, for each pdf of a given color, draw a vertical line of the same color at the $0.05$ critical value for that pdf.
 ```{r}
-
+degs_freedom = c(2, 3, 4, 6, 9, 30)
+colors = c("black", "purple", "blue", "green", "yellow", "orange")
+color_index = 1
+#plot.new()
+for (df in degs_freedom){
+  lines(x_axis, dt(x_axis, df), col = colors[color_index]) 
+  abline(v=qt(0.025, df = df), col=colors[color_index])
+  abline(v=qt(1 - 0.025, df = df), col=colors[color_index])
+  color_index = color_index + 1
+}
 ```
 
 What do you notice?
-
-
+The Normal curve has the smallest tails and the smallest z-values.
+Then Student-t distributions are more spread out and have larger z-values.
+As sample size increases, the curve starts to resemble the Normal curve more closely.
+Because the tails get smaller. 
 
 ## Densities of Chi-Squared Distribution
 Construct a single plot with the graphs of the pdf of the Chi-squared distribution with df=2, 3, 4, 6, 9, 30, 40. Each graph must have a different color. 
 ```{r}
+n = 10000
 
+x_axis = seq(0, 75, length = 1000)
+plot( x_axis, dchisq(x_axis, df = 2), 
+      type = "l", col = "red",
+      xlab = "Values", ylab = "Frequency"  ,)
+
+degs_freedom = c(3, 4, 6, 9, 30, 40)
+colors = c("orange", "yellow", "green", "blue", "purple", "black")
+color_index = 1
+for (df in degs_freedom){
+  lines(x_axis, dchisq(x_axis, df), col = colors[color_index]) 
+  color_index = color_index + 1
+}
 ```
 What do you notice?
+
+The curve for df = 2 looks very different from the others.
+All curves start at zero, meaning that P(x < 0 ) = 0 for all cases.
+At low values of df, the curves are very right-tailed. 
+As df increases, the curves get increasingly symmetric. 
+As df increases, the curves are more spread out. 

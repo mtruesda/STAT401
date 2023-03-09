@@ -82,6 +82,7 @@ Now use the replicate function to calculate the empirical probabilities when for
 Wrote the below to use in showing the above
 ```{r}
 exp_run_times = 1000
+print("Check this")
 for(n in c(3, 6, 9, 15)) {
   successes = sum(replicate(exp_run_times, exactly_one_cell(n)))/exp_run_times
   theoretical_value <- choose(n, 2)*factorial(n)/(n^n)
